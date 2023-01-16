@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 internal class Program
@@ -6,32 +6,22 @@ internal class Program
     static void Main(string[] args)
     {
         Fight game = new Fight();
-        game.Play();
+        game.StartBattle();
     }
 }
 
 class Fight
 {
-    public void Play()
-    {
-        byte playerCount = 1;
-        string detachmentCountry1 = ReadName(playerCount);
-        playerCount++;
-        string detachmentCountry2 = ReadName(playerCount);
-        List<Warrior> firstDetachment = CreateDetachment(detachmentCountry1);
-        List<Warrior> secondDetachment = CreateDetachment(detachmentCountry2);
-        Console.WriteLine("Да начнется гладиаторский бой!");
+    private Detachment _firstDetachment = new Detachment();
+    private Detachment _secondDetachment = new Detachment();
 
-        StartBattle(firstDetachment, secondDetachment, detachmentCountry1, detachmentCountry2);
-    }
-
-    private void StartBattle(List<Warrior> firstDetachment, List<Warrior> secondDetachment,string detachmentCountry1, string detachmentCountry2)
+    public void StartBattle()
     {
-        while (firstDetachment.Count > 0 && secondDetachment.Count > 0)
+        while (_firstDetachment.Warriors.Count > 0 && _secondDetachment.Warriors.Count > 0)
         {
             int indexWarrior = 0;
-            Warrior firstWarrior = firstDetachment[indexWarrior];
-            Warrior secondWarrior = secondDetachment[indexWarrior];
+            Warrior firstWarrior = _firstDetachment.Warriors[indexWarrior];
+            Warrior secondWarrior = _secondDetachment.Warriors[indexWarrior];
             Console.WriteLine("\nСледующий бой");
 
             while (firstWarrior.Health > 0 && secondWarrior.Health > 0)
@@ -42,66 +32,72 @@ class Fight
                 ShowStats(secondWarrior);
                 Console.ReadKey();
 
-                if (firstWarrior.Health < 0 || firstWarrior.Health == 0)
+                if (firstWarrior.Health <= 0 && secondWarrior.Health <= 0)
                 {
-                    Console.Write("\n" + firstWarrior + " из отряда страны " + detachmentCountry1 + " был убит");
-                    firstDetachment.Remove(firstWarrior);
-                    Console.Write(", в отряде осталось " + firstDetachment.Count + " бойцов");
+                    Console.Write("\nбойцы убили друг друга");
+                    _firstDetachment.RemoveWarrior(firstWarrior);
+                    _secondDetachment.RemoveWarrior(secondWarrior);
+                    Console.Write(", в отряде страны " + _firstDetachment.Name + " осталось " + _firstDetachment.Warriors.Count + " бойцов");
+                    Console.Write(", в отряде страны " + _secondDetachment.Name + " осталось " + _secondDetachment.Warriors.Count + " бойцов");
                 }
-                else if (secondWarrior.Health < 0 || secondWarrior.Health == 0)
+                else if (firstWarrior.Health <= 0)
                 {
-                    Console.Write("\n" + secondWarrior + " из отряда страны " + detachmentCountry2 + " был убит");
-                    secondDetachment.Remove(secondWarrior);
-                    Console.Write(", в отряде осталось " + secondDetachment.Count + " бойцов");
+                    Console.Write("\n" + firstWarrior + " из отряда страны " + _firstDetachment.Name + " был убит");
+                    _firstDetachment.RemoveWarrior(firstWarrior);
+                    Console.Write(", в отряде осталось " + _firstDetachment.Warriors.Count + " бойцов");
+                }
+                else if (secondWarrior.Health <= 0)
+                {
+                    Console.Write("\n" + secondWarrior + " из отряда страны " + _secondDetachment.Name + " был убит");
+                    _secondDetachment.RemoveWarrior(secondWarrior);
+                    Console.Write(", в отряде осталось " + _secondDetachment.Warriors.Count + " бойцов");
                 }
             }
 
-            if (firstDetachment.Count == 0 )
-            {
-                Console.WriteLine("\nПобедил отряд страны " + detachmentCountry2);
-            }
-            else if (secondDetachment.Count == 0)
-            {
-                Console.WriteLine("\nПобедил отряд страны " + detachmentCountry1); 
-            }
-            else if(firstDetachment.Count == 0 && secondDetachment.Count == 0)
+            if (_firstDetachment.Warriors.Count == 0 && _secondDetachment.Warriors.Count == 0)
             {
                 Console.WriteLine("\nНичья, оба отряда мертвы");
             }
+            else if (_firstDetachment.Warriors.Count == 0)
+            {
+                Console.WriteLine("\nПобедил отряд страны " + _secondDetachment.Name);
+            }
+            else if (_secondDetachment.Warriors.Count == 0)
+            {
+                Console.WriteLine("\nПобедил отряд страны " + _firstDetachment.Name);
+            }
         }
     }
 
-    private List<Warrior> CreateDetachment(string nameDetachment)
+    private void ShowStats(Warrior warrior)
     {
-        List<Warrior> detachment = new List<Warrior>();
-        int warriorsCount = 5;
+        Console.WriteLine(warrior.Name + " HP: " + warrior.Health);
+    }
+}
 
-        Console.WriteLine("\nвыберите " + warriorsCount + " бойцов для отряда страны: " + nameDetachment);
+class Detachment
+{
+    public IReadOnlyList<Warrior> Warriors => _warriors;
+    public string Name { get; private set; }
+    private List<Warrior> _warriors = new List<Warrior>();
+    static private byte _numberPlayer = 0;
 
-        while (warriorsCount > 0)
-        {
-            detachment.Add(ChooseWarrior());
-            warriorsCount--;
-        }
-        
-        return detachment;
+    public Detachment()
+    {
+        _numberPlayer++;
+        Name = ReadName(_numberPlayer);
+        _warriors = Create(Name);
     }
 
-    private Warrior ChooseWarrior()
+    public void RemoveWarrior(Warrior warrior)
     {
-        List<Warrior> warriors = CreateWarriors();
-        
-        ShowWarriors(warriors);
-        int warriorIndex = GetNumber();
-        int defoltIndex = 0;
+        _warriors.Remove(warrior);
+    }
 
-        if (warriorIndex >= warriors.Count || warriorIndex < 0)
-        {
-            Console.WriteLine("Вы странный, ввели то, чего не было в выборе, ваш отряд будет состоять из танков");
-            return warriors[defoltIndex];
-        }
-
-        return warriors[warriorIndex];
+    private string ReadName(byte numberPlayer)
+    {
+        Console.WriteLine("Для старта битвы введите название страны, которую будет представлять ваш отряд, игрок номер " + numberPlayer);
+        return Console.ReadLine();
     }
 
     private List<Warrior> CreateWarriors()
@@ -116,10 +112,36 @@ class Fight
         return warriors;
     }
 
-    private string ReadName(byte playerCount)
+    private List<Warrior> Create(string nameDetachment)
     {
-        Console.WriteLine("Для старта битвы введите название страны, которую будет представлять ваш отряд, игрок номер " + playerCount);
-        return Console.ReadLine();
+        List<Warrior> detachment = new List<Warrior>();
+        int warriorsCount = 5;
+
+        Console.WriteLine("\nвыберите " + warriorsCount + " бойцов для отряда страны: " + nameDetachment);
+
+        for (int i = 0; i < warriorsCount; i++)
+        {
+            detachment.Add(ChooseWarrior());
+        }
+
+        return detachment;
+    }
+
+    private Warrior ChooseWarrior()
+    {
+        List<Warrior> warriors = CreateWarriors();
+
+        ShowWarriors(warriors);
+        int warriorIndex = GetNumber();
+        int defoltIndex = 0;
+
+        if (warriorIndex >= warriors.Count || warriorIndex < 0)
+        {
+            Console.WriteLine("Вы странный, ввели то, чего не было в выборе, ваш отряд будет состоять из танков");
+            return warriors[defoltIndex];
+        }
+
+        return warriors[warriorIndex];
     }
 
     private void ShowWarriors(List<Warrior> warriors)
@@ -131,11 +153,6 @@ class Fight
             Console.Write(idWarrior++ + "  ");
             warrior.ShowInfo();
         }
-    }
-
-    private void ShowStats(Warrior warrior)
-    {
-        Console.WriteLine(warrior.Name + " HP: " + warrior.Health);
     }
 
     private int GetNumber()
@@ -216,7 +233,7 @@ class Tank : Warrior
     {
         if (Armor > damage)
         {
-            Health += damage - Armor;
+            Health += Armor - damage;
         }
         else
         {
