@@ -31,27 +31,27 @@ class Fight
                 ShowStats(firstWarrior);
                 ShowStats(secondWarrior);
                 Console.ReadKey();
+            }
 
-                if (firstWarrior.Health <= 0 && secondWarrior.Health <= 0)
-                {
-                    Console.Write("\nбойцы убили друг друга");
-                    _firstDetachment.RemoveWarrior(firstWarrior);
-                    _secondDetachment.RemoveWarrior(secondWarrior);
-                    Console.Write(", в отряде страны " + _firstDetachment.Name + " осталось " + _firstDetachment.Warriors.Count + " бойцов");
-                    Console.Write(", в отряде страны " + _secondDetachment.Name + " осталось " + _secondDetachment.Warriors.Count + " бойцов");
-                }
-                else if (firstWarrior.Health <= 0)
-                {
-                    Console.Write("\n" + firstWarrior + " из отряда страны " + _firstDetachment.Name + " был убит");
-                    _firstDetachment.RemoveWarrior(firstWarrior);
-                    Console.Write(", в отряде осталось " + _firstDetachment.Warriors.Count + " бойцов");
-                }
-                else if (secondWarrior.Health <= 0)
-                {
-                    Console.Write("\n" + secondWarrior + " из отряда страны " + _secondDetachment.Name + " был убит");
-                    _secondDetachment.RemoveWarrior(secondWarrior);
-                    Console.Write(", в отряде осталось " + _secondDetachment.Warriors.Count + " бойцов");
-                }
+            if (firstWarrior.Health <= 0 && secondWarrior.Health <= 0)
+            {
+                Console.Write("\nбойцы убили друг друга");
+                _firstDetachment.RemoveWarrior(firstWarrior);
+                _secondDetachment.RemoveWarrior(secondWarrior);
+                Console.Write(", в отряде страны " + _firstDetachment.Name + " осталось " + _firstDetachment.Warriors.Count + " бойцов");
+                Console.Write(", в отряде страны " + _secondDetachment.Name + " осталось " + _secondDetachment.Warriors.Count + " бойцов");
+            }
+            else if (firstWarrior.Health <= 0)
+            {
+                Console.Write("\n" + firstWarrior + " из отряда страны " + _firstDetachment.Name + " был убит");
+                _firstDetachment.RemoveWarrior(firstWarrior);
+                Console.Write(", в отряде осталось " + _firstDetachment.Warriors.Count + " бойцов");
+            }
+            else if (secondWarrior.Health <= 0)
+            {
+                Console.Write("\n" + secondWarrior + " из отряда страны " + _secondDetachment.Name + " был убит");
+                _secondDetachment.RemoveWarrior(secondWarrior);
+                Console.Write(", в отряде осталось " + _secondDetachment.Warriors.Count + " бойцов");
             }
 
             if (_firstDetachment.Warriors.Count == 0 && _secondDetachment.Warriors.Count == 0)
@@ -77,10 +77,10 @@ class Fight
 
 class Detachment
 {
+    static private byte _numberPlayer = 0;
     public IReadOnlyList<Warrior> Warriors => _warriors;
     public string Name { get; private set; }
     private List<Warrior> _warriors = new List<Warrior>();
-    static private byte _numberPlayer = 0;
 
     public Detachment()
     {
@@ -266,16 +266,13 @@ class Priest : Warrior
 
         if (Armor < damage)
         {
-            if (Mana > 0)
+            if (Mana >= manaCostHeal)
             {
                 Mana -= manaCostHeal;
-                Health -= damage - Armor;
                 Health += Heal;
             }
-            else
-            {
-                Health -= damage - Armor;
-            }
+
+            Health -= damage - Armor;
         }
     }
 
