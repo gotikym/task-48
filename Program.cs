@@ -77,9 +77,6 @@ class Fight
 
 class Detachment
 {
-    static private byte _numberPlayer = 0;
-    public IReadOnlyList<Warrior> Warriors => _warriors;
-    public string Name { get; private set; }
     private List<Warrior> _warriors = new List<Warrior>();
 
     public Detachment()
@@ -88,6 +85,10 @@ class Detachment
         Name = ReadName(_numberPlayer);
         _warriors = Create(Name);
     }
+
+    private static byte _numberPlayer = 0;
+    public IReadOnlyList<Warrior> Warriors => _warriors;
+    public string Name { get; private set; }
 
     public void RemoveWarrior(Warrior warrior)
     {
@@ -178,11 +179,6 @@ class Detachment
 abstract class Warrior
 {
     static private Random _random = new Random();
-    public string Name { get; protected set; }
-    public int Health { get; protected set; }
-    public int Armor { get; protected set; }
-    public int Damage { get; protected set; }
-    public int AttackSpeed { get; protected set; }
 
     public Warrior()
     {
@@ -192,6 +188,12 @@ abstract class Warrior
         Damage = 25;
         AttackSpeed = 1;
     }
+
+    public string Name { get; protected set; }
+    public int Health { get; protected set; }
+    public int Armor { get; protected set; }
+    public int Damage { get; protected set; }
+    public int AttackSpeed { get; protected set; }
 
     public virtual void TakeDamage(int damage)
     {
@@ -249,9 +251,6 @@ class Tank : Warrior
 
 class Priest : Warrior
 {
-    public int Mana { get; private set; }
-    public int Heal { get; private set; }
-
     public Priest() : base()
     {
         Name = "Priest";
@@ -259,6 +258,9 @@ class Priest : Warrior
         Mana = 100;
         Heal = 30;
     }
+
+    public int Mana { get; private set; }
+    public int Heal { get; private set; }
 
     public override void TakeDamage(int damage)
     {
@@ -284,15 +286,15 @@ class Priest : Warrior
 
 class Rogue : Warrior
 {
-    public int LethalHitChance { get; private set; }
-    public int IvasionChance { get; private set; }
-
     public Rogue() : base()
     {
         Name = "Rogue";
         LethalHitChance = 5;
         IvasionChance = 15;
     }
+
+    public int LethalHitChance { get; private set; }
+    public int IvasionChance { get; private set; }
 
     public override void TakeDamage(int damage)
     {
@@ -328,9 +330,6 @@ class Rogue : Warrior
 
 class Shaman : Warrior
 {
-    public int Mana { get; private set; }
-    public int AmountHealth { get; private set; }
-
     public Shaman() : base()
     {
         Name = "Shaman";
@@ -338,6 +337,9 @@ class Shaman : Warrior
         Mana = 100;
         AmountHealth = 50;
     }
+
+    public int Mana { get; private set; }
+    public int AmountHealth { get; private set; }
 
     public override void TakeDamage(int damage)
     {
