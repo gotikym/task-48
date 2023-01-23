@@ -77,6 +77,7 @@ class Fight
 
 class Detachment
 {
+    private static byte _numberPlayer = 0;
     private List<Warrior> _warriors = new List<Warrior>();
 
     public Detachment()
@@ -86,7 +87,6 @@ class Detachment
         _warriors = Create(Name);
     }
 
-    private static byte _numberPlayer = 0;
     public IReadOnlyList<Warrior> Warriors => _warriors;
     public string Name { get; private set; }
 
